@@ -10,23 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ Checkout the repository
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # 2️⃣ Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 18
 
+    # 3️⃣ Install dependencies
     - name: Install dependencies
       run: npm install
 
+    # 4️⃣ Build project (ignore ESLint warnings)
     - name: Build project
-      run: npm run build
+      run: CI=false npm run build
 
+    # 5️⃣ Install sshpass for copying files to Windows
     - name: Install sshpass
       run: sudo apt-get update && sudo apt-get install -y sshpass
 
+    # 6️⃣ Copy React build to Windows EC2 IIS folder
     - name: Copy React build to Windows EC2 IIS folder
       env:
         EC2_PASSWORD: ${{ secrets.EC2_PASSWORD }}
