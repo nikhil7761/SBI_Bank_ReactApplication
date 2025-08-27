@@ -1,0 +1,36 @@
+name: SBI CI/CD + Direct Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: npm run build
+
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
+
+    - name: Copy React build to Windows EC2 IIS folder
+      env:
+        EC2_PASSWORD: ${{ secrets.EC2_PASSWORD }}
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+      run: |
+        echo "Copying React build to IIS..."
+        sshpass -p "$EC2_PASSWORD" scp -o StrictHostKeyChecking=no -r ./build/* administrator@$EC2_HOST:C:/inetpub/wwwroot/Sbi_Application/
